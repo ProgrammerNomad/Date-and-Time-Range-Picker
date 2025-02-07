@@ -6,7 +6,9 @@ A user-friendly date and time range picker using jQuery UI Datepicker and Timepi
 
 ## Demo
 
-[https://ProgrammerNomad.github.io/Date-and-Time-Range-Picker/](https://ProgrammerNomad.github.io/Date-and-Time-Range-Picker/)  ## Features
+[https://ProgrammerNomad.github.io/Date-and-Time-Range-Picker/](https://ProgrammerNomad.github.io/Date-and-Time-Range-Picker/)  
+
+## Features
 
 *   **Intuitive Date Selection:** Utilizes jQuery UI Datepicker for easy start and end date selection.
 *   **Precise Time Selection:** Employs the Timepicker plugin for accurate start and end time input.
