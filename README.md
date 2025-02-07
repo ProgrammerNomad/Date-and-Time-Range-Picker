@@ -1,6 +1,8 @@
 # Date and Time Range Picker
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)  A user-friendly date and time range picker using jQuery UI Datepicker and Timepicker.  This component allows users to easily select a start and end date/time, with built-in validation and convenience features.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)  
+
+A user-friendly date and time range picker using jQuery UI Datepicker and Timepicker.  This component allows users to easily select a start and end date/time, with built-in validation and convenience features.
 
 ## Demo
 
