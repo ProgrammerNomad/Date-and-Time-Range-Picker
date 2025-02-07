@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Date and Time Range Picker</title>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+<style>.container {
+    display: flex;
+    flex-direction: column;
+  }.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }.input-group label {
+    margin-right: 5px;
+    width: 80px;
+  }
+  #dateTimeRange {
+    margin-top: 10px;
+    font-weight: bold;
+  }
+</style>
+<body>
+
+<div class="container">
+  <div class="input-group">
+    <label for="startDate">Start Date:</label>
+    <input type="text" id="startDate" placeholder="Start Date">
+  </div>
+  <div class="input-group">
+    <label for="startTime">Start Time:</label>
+    <input type="text" id="startTime" placeholder="Start Time">
+  </div>
+  <div class="input-group">
+    <label for="endDate">End Date:</label>
+    <input type="text" id="endDate" placeholder="End Date">
+  </div>
+  <div class="input-group">
+    <label for="endTime">End Time:</label>
+    <input type="text" id="endTime" placeholder="End Time">
+  </div>
+
+  <div id="dateTimeRange"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+
+<script>
+$(function() {
+  $("#startDate").datepicker({
+    dateFormat: "yy-mm-dd",
+    minDate: 0, // Disable past dates for start date
+    onSelect: function(selectedDate) {
+      $("#endDate").datepicker("option", "minDate", selectedDate);
+      if ($("#endDate").val() && new Date(selectedDate) > new Date($("#endDate").val())) {
+        $("#endDate").val("");
+        $("#endTime").val("");
+      }
+      getCombinedDateTime();
+      setTimeout(function() {
+        $("#endDate").datepicker("show");
+      }, 0);
+    }
+  });
+
+  $("#endDate").datepicker({
+    dateFormat: "yy-mm-dd",
+    onSelect: function(selectedDate) {
+      $("#startDate").datepicker("option", "maxDate", selectedDate);
+      if ($("#startDate").val() && new Date(selectedDate) < new Date($("#startDate").val())) {
+        $("#startDate").val("");
+        $("#startTime").val("");
+      }
+      getCombinedDateTime();
+    }
+  });
+
+  $("#startTime").timepicker({
+    timeFormat: 'h:mm a',
+    interval: 15,
+    minTime: '00:00',
+    maxTime: '23:59',
+    dynamic: false,
+    dropdown: true,
+    scrollbar: true,
+    change: getCombinedDateTime
+  });
+
+  $("#endTime").timepicker({
+    timeFormat: 'h:mm a',
+    interval: 15,
+    minTime: '00:00',
+    maxTime: '23:59',
+    dynamic: false,
+    dropdown: true,
+    scrollbar: true,
+    change: getCombinedDateTime
+  });
+
+  function initializeDateTimePickers() {
+    const now = new Date();
+    $("#startDate").datepicker("setDate", now);
+
+    const startTimeMinutes = now.getMinutes() + 15;
+    now.setMinutes(startTimeMinutes);
+    const formattedStartTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    $("#startTime").timepicker("setTime", formattedStartTime);
+
+    const endDate = new Date();
+    endDate.setDate(now.getDate() + 2);
+    $("#endDate").datepicker("setDate", endDate);
+
+    const endTime = new Date();
+    endTime.setDate(endDate.getDate());
+    if (endTime.getDate() === now.getDate()) {
+        endTime.setMinutes(startTimeMinutes);
+    } else {
+        endTime.setHours(now.getHours());
+        endTime.setMinutes(now.getMinutes() + 15);
+    }
+    const formattedEndTime = endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    $("#endTime").timepicker("setTime", formattedEndTime);
+
+    getCombinedDateTime();
+  }
+
+  function getCombinedDateTime() {
+    const startDate = $("#startDate").val();
+    const startTime = $("#startTime").val();
+    const endDate = $("#endDate").val();
+    const endTime = $("#endTime").val();
+
+    let startDateTime = startDate && startTime? startDate + ' ' + startTime: "";
+    let endDateTime = endDate && endTime? endDate + ' ' + endTime: "";
+
+    console.log("Start Date Time:", startDateTime);
+    console.log("End Date Time:", endDateTime);
+
+    $("#dateTimeRange").html("Selected Range: " + (startDateTime || "Not set") + " - " + (endDateTime || "Not set"));
+
+    return {
+      start: startDateTime,
+      end: endDateTime
+    };
+  }
+
+  initializeDateTimePickers();
+
+});
+</script>
+
+</body>
+</html>
