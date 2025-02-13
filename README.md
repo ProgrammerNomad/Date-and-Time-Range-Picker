@@ -53,7 +53,7 @@ You can use this date/time picker in your project in a few ways:
 To disable specific dates, modify the `disabledDates` array in the JavaScript code.  The dates should be in `YYYY-MM-DD` format.
 
 ```javascript
-const disabledDates = ["2024-07-20", "2024-07-25", "2024-08-10"]; // Example disabled dates
+const disabledDates = ["2025-02-20", "2025-02-15", "2025-02-18"]; // Example disabled dates
 ```
 
 Refer to the `index.html` file in the repository for a complete working example.
