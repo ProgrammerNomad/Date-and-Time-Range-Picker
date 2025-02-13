@@ -37,7 +37,7 @@ You can use this date/time picker in your project in a few ways:
 2.  **Clone the Repository (for development/modification):**
 
     ```bash
-    git clone [https://github.com/ProgrammerNomad/Date-and-Time-Range-Picker.git](https://github.com/ProgrammerNomad/Date-and-Time-Range-Picker.git)
+    git clone https://github.com/ProgrammerNomad/Date-and-Time-Range-Picker.git
     ```
 
     Then, copy the necessary files (`index.html` or the relevant JS/CSS) into your project.
