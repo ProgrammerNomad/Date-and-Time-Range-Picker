@@ -34,119 +34,167 @@
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
 
-<script>
-$(function() {
-  const disabledDates = ["2025-02-20", "2025-02-15", "2025-02-18"]; // Array of disabled dates (YYYY-MM-DD)
+<script>$(function() {
+  const disabledDates = ["2025-02-16", "2025-02-18", "2025-02-19", "2025-02-26"]; // Array of disabled dates (YYYY-MM-DD)
 
   $("#startDate").datepicker({
-    dateFormat: "yy-mm-dd",
-    minDate: 0,
-    beforeShowDay: function(date) {
-      const formattedDate = $.datepicker.formatDate("yy-mm-dd", date);
-      return [disabledDates.indexOf(formattedDate) === -1]; // Enable date if not in disabledDates
-    },
-    onSelect: function(selectedDate) {
-      $("#endDate").datepicker("option", "minDate", selectedDate);
-      if ($("#endDate").val() && new Date(selectedDate) > new Date($("#endDate").val())) {
-        $("#endDate").val("");
-        $("#endTime").val("");
-      }
-      getCombinedDateTime();
-      setTimeout(function() {
-        $("#endDate").datepicker("show");
-      }, 0);
-    }
-  });
+        dateFormat: "yy-mm-dd",
+        minDate: 0,
+        beforeShowDay: function(date) {
+            const formattedDate = $.datepicker.formatDate("yy-mm-dd", date);
+            return [disabledDates.indexOf(formattedDate) === -1];
+        },
+        onSelect: function(selectedDate) {
+            const startDate = new Date(selectedDate);
+            
+            // Sort disabled dates and find the next one after the selected start date
+            const sortedDisabledDates = disabledDates
+                .map(date => new Date(date))
+                .sort((a, b) => a - b);
+                
+            let nextDisabledDate = null;
+            for (let date of sortedDisabledDates) {
+                if (date > startDate) {
+                    nextDisabledDate = date;
+                    break;
+                }
+            }
+            
+            // Set the maximum date to the day before next disabled date
+            if (nextDisabledDate) {
+                const maxDate = new Date(nextDisabledDate);
+                maxDate.setDate(maxDate.getDate() - 1);
+                $("#endDate").datepicker("option", "maxDate", maxDate);
+            } else {
+                $("#endDate").datepicker("option", "maxDate", null);
+            }
 
-  $("#endDate").datepicker({
-    dateFormat: "yy-mm-dd",
-    minDate: 0, // Disable past dates for start date
-    beforeShowDay: function(date) {
-      const formattedDate = $.datepicker.formatDate("yy-mm-dd", date);
-      return [disabledDates.indexOf(formattedDate) === -1]; // Enable date if not in disabledDates
-    },
-    onSelect: function(selectedDate) {
-      $("#startDate").datepicker("option", "maxDate", selectedDate);
-      if ($("#startDate").val() && new Date(selectedDate) < new Date($("#startDate").val())) {
-        $("#startDate").val("");
-        $("#startTime").val("");
-      }
-      getCombinedDateTime();
-    }
-  });
+            // Set minimum end date to start date
+            $("#endDate").datepicker("option", "minDate", startDate);
 
+            // Clear end date if it's now invalid
+            const currentEndDate = $("#endDate").datepicker("getDate");
+            if (currentEndDate && nextDisabledDate && currentEndDate >= nextDisabledDate) {
+                $("#endDate").val("");
+                $("#endTime").val("");
+            }
+
+            getCombinedDateTime();
+        }
+    });
+
+    $("#endDate").datepicker({
+        dateFormat: "yy-mm-dd",
+        minDate: 0,
+        beforeShowDay: function(date) {
+            const formattedDate = $.datepicker.formatDate("yy-mm-dd", date);
+            const startDate = $("#startDate").datepicker("getDate");
+            
+            if (!startDate) return [true];
+
+            // Find next disabled date after start date
+            const sortedDisabledDates = disabledDates
+                .map(date => new Date(date))
+                .sort((a, b) => a - b);
+                
+            let nextDisabledDate = null;
+            for (let disabledDate of sortedDisabledDates) {
+                if (disabledDate > startDate) {
+                    nextDisabledDate = disabledDate;
+                    break;
+                }
+            }
+
+            // Check if current date is disabled or beyond next disabled date
+            const isDisabled = disabledDates.includes(formattedDate);
+            const isAfterNextDisabled = nextDisabledDate && date >= nextDisabledDate;
+
+            return [!isDisabled && !isAfterNextDisabled];
+        },
+        onSelect: function(selectedDate) {
+            getCombinedDateTime();
+        }
+    });
+  
   $("#startTime").timepicker({
-    timeFormat: 'h:mm a',
-    interval: 15,
-    minTime: '00:00',
-    maxTime: '23:59',
-    dynamic: false,
-    dropdown: true,
-    scrollbar: true,
-    change: getCombinedDateTime
+      timeFormat: 'h:mm a',
+      interval: 15,
+      minTime: '00:00',
+      maxTime: '23:59',
+      dynamic: false,
+      dropdown: true,
+      scrollbar: true,
+      change: getCombinedDateTime
   });
 
   $("#endTime").timepicker({
-    timeFormat: 'h:mm a',
-    interval: 15,
-    minTime: '00:00',
-    maxTime: '23:59',
-    dynamic: false,
-    dropdown: true,
-    scrollbar: true,
-    change: getCombinedDateTime
+      timeFormat: 'h:mm a',
+      interval: 15,
+      minTime: '00:00',
+      maxTime: '23:59',
+      dynamic: false,
+      dropdown: true,
+      scrollbar: true,
+      change: getCombinedDateTime
   });
 
   function initializeDateTimePickers() {
-    const now = new Date();
-    $("#startDate").datepicker("setDate", now);
+      const now = new Date();
+      $("#startDate").datepicker("setDate", now);
 
-    const startTimeMinutes = now.getMinutes() + 15;
-    now.setMinutes(startTimeMinutes);
-    const formattedStartTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    $("#startTime").timepicker("setTime", formattedStartTime);
+      const startTimeMinutes = now.getMinutes() + 15;
+      now.setMinutes(startTimeMinutes);
+      const formattedStartTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      $("#startTime").timepicker("setTime", formattedStartTime);
 
-    const endDate = new Date();
-    endDate.setDate(now.getDate() + 2);
-    $("#endDate").datepicker("setDate", endDate);
+      // Find the next enabled date for endDate
+      let endDate = new Date();
+      endDate.setDate(now.getDate() + 2);
+      let formattedEndDate = $.datepicker.formatDate("yy-mm-dd", endDate);
+      while (disabledDates.indexOf(formattedEndDate)!== -1) {
+          endDate.setDate(endDate.getDate() + 1);
+          formattedEndDate = $.datepicker.formatDate("yy-mm-dd", endDate);
+      }
+      $("#endDate").datepicker("setDate", endDate);
 
-    const endTime = new Date();
-    endTime.setDate(endDate.getDate());
-    if (endTime.getDate() === now.getDate()) {
-        endTime.setMinutes(startTimeMinutes);
-    } else {
-        endTime.setHours(now.getHours());
-        endTime.setMinutes(now.getMinutes() + 15);
-    }
-    const formattedEndTime = endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    $("#endTime").timepicker("setTime", formattedEndTime);
+      const endTime = new Date();
+      endTime.setDate(endDate.getDate());
+      if (endTime.getDate() === now.getDate()) {
+          endTime.setMinutes(startTimeMinutes);
+      } else {
+          endTime.setHours(now.getHours());
+          endTime.setMinutes(now.getMinutes() + 15);
+      }
+      const formattedEndTime = endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      $("#endTime").timepicker("setTime", formattedEndTime);
 
-    getCombinedDateTime();
+      getCombinedDateTime();
   }
 
   function getCombinedDateTime() {
-    const startDate = $("#startDate").val();
-    const startTime = $("#startTime").val();
-    const endDate = $("#endDate").val();
-    const endTime = $("#endTime").val();
+      const startDate = $("#startDate").val();
+      const startTime = $("#startTime").val();
+      const endDate = $("#endDate").val();
+      const endTime = $("#endTime").val();
 
-    let startDateTime = startDate && startTime? startDate + ' ' + startTime: "";
-    let endDateTime = endDate && endTime? endDate + ' ' + endTime: "";
+      let startDateTime = startDate && startTime? startDate + ' ' + startTime: "";
+      let endDateTime = endDate && endTime? endDate + ' ' + endTime: "";
 
-    console.log("Start Date Time:", startDateTime);
-    console.log("End Date Time:", endDateTime);
+      console.log("Start Date Time:", startDateTime);
+      console.log("End Date Time:", endDateTime);
 
-    $("#dateTimeRange").html("Selected Range: " + (startDateTime || "Not set") + " - " + (endDateTime || "Not set"));
+      $("#dateTimeRange").html("Selected Range: " + (startDateTime || "Not set") + " - " + (endDateTime || "Not set"));
 
-    return {
-      start: startDateTime,
-      end: endDateTime
-    };
+      return {
+          start: startDateTime,
+          end: endDateTime
+      };
   }
 
   initializeDateTimePickers();
 
 });
+</script>
 </script>
 
 </body>

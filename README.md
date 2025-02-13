@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A user-friendly date and time range picker using jQuery UI Datepicker and Timepicker. This component allows users to easily select a start and end date/time, with built-in validation, convenience features, and the ability to disable specific dates.
+A user-friendly date and time range picker using jQuery UI Datepicker and Timepicker. This component allows users to select date ranges while automatically handling disabled dates and preventing invalid selections.
 
 ## Demo
 
@@ -10,62 +10,140 @@ A user-friendly date and time range picker using jQuery UI Datepicker and Timepi
 
 ## Features
 
-*   **Intuitive Date Selection:** Uses jQuery UI Datepicker for easy start and end date selection.
-*   **Precise Time Selection:** Employs the Timepicker plugin for accurate start and end time input.
-*   **Robust Date Range Validation:** Prevents users from selecting an end date/time before the start date/time, and vice-versa.  If the start date is changed to be after the current end date, the end date and time are cleared. The same logic applies when the end date is changed to be before the current start date.
-*   **Automatic End Datepicker Opening:** The end datepicker automatically opens after a start date is selected, streamlining the user experience.
-*   **Initial Date/Time Defaults:** Sets the initial start date to the current date, start time to 15 minutes from the current time, end date to two days from the current date, and end time to match the start time (or 15 minutes from the current time, if the end date is today).
-*   **Restricted Past Dates (Start Date):** Users cannot select past dates for the start date, ensuring logical date ranges.
-*   **Disable Specific Dates:** Allows you to disable specific dates in both the start and end date pickers using an array of dates.
-*   **Clear Display:** Displays the selected date and time range clearly and concisely.
+* **Smart Date Range Selection:** 
+  - Automatically prevents selection of ranges that include disabled dates
+  - Intelligently adjusts end date options based on start date selection
+  - Supports single-day selection even when next day is disabled
+
+* **Intuitive Interface:**
+  - jQuery UI Datepicker for date selection
+  - Timepicker plugin for precise time input
+  - Automatic validation of date/time ranges
+
+* **Advanced Validation:**
+  - Prevents selection of disabled dates
+  - Automatically limits end date selection to avoid disabled dates
+  - Clears invalid selections when date constraints change
+
+* **Time Management:**
+  - 15-minute interval time selection
+  - 24-hour time range support
+  - Automatic time adjustment based on date selection
+
+* **Default Behaviors:**
+  - Sets start date to current date
+  - Initializes start time to next 15-minute interval
+  - Automatically finds next valid end date
+  - Handles time selection across date boundaries
 
 ## Technologies Used
 
-*   HTML
-*   CSS
-*   JavaScript
-*   [jQuery](https://jquery.com/) (v3.7.1 or later)
-*   [jQuery UI](https://jqueryui.com/) (v1.13.2 or later)
-*   [Timepicker Plugin](https://github.com/jonthornton/jquery-timepicker) (v1.3.5 or later)
+* HTML5
+* CSS3
+* JavaScript (ES6+)
+* jQuery v3.7.1
+* jQuery UI v1.13.2
+* jQuery Timepicker v1.3.5
 
 ## Installation
 
-You can use this date/time picker in your project in a few ways:
+### Quick Start (CDN)
+Include the required files in your HTML:
 
-1.  **Directly from GitHub Pages (for testing/quick integration):** Include the necessary CSS and JavaScript files directly from the GitHub Pages demo in your HTML.  (See the HTML source of the demo page for the exact links.)
+```html
+<!-- CSS -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
 
-2.  **Clone the Repository (for development/modification):**
+<!-- JavaScript -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+```
 
-    ```bash
-    git clone https://github.com/ProgrammerNomad/Date-and-Time-Range-Picker.git
-    ```
+### Local Development
 
-    Then, copy the necessary files (`index.html` or the relevant JS/CSS) into your project.
+1. Clone the repository:
+```bash
+git clone https://github.com/ProgrammerNomad/Date-and-Time-Range-Picker.git
+```
+
+2. Navigate to the project directory:
+```bash
+cd Date-and-Time-Range-Picker
+```
 
 ## Usage
 
-1.  Include the required CSS and JavaScript files in your HTML (as shown in the Installation section).
-2.  Add the HTML structure for the date and time pickers (see `index.html` for an example).
-3.  Initialize the datepickers and timepickers using jQuery (see the provided JavaScript code in `index.html`).
+### Basic Implementation
 
-**Disabling Specific Dates:**
-
-To disable specific dates, modify the `disabledDates` array in the JavaScript code.  The dates should be in `YYYY-MM-DD` format.
-
-```javascript
-const disabledDates = ["2025-02-20", "2025-02-15", "2025-02-18"]; // Example disabled dates
+1. Add the HTML structure:
+```html
+<div class="container">
+  <div class="input-group">
+    <label for="startDate">Start Date:</label>
+    <input type="text" id="startDate" placeholder="Start Date">
+  </div>
+  <div class="input-group">
+    <label for="startTime">Start Time:</label>
+    <input type="text" id="startTime" placeholder="Start Time">
+  </div>
+  <div class="input-group">
+    <label for="endDate">End Date:</label>
+    <input type="text" id="endDate" placeholder="End Date">
+  </div>
+  <div class="input-group">
+    <label for="endTime">End Time:</label>
+    <input type="text" id="endTime" placeholder="End Time">
+  </div>
+</div>
 ```
 
-Refer to the `index.html` file in the repository for a complete working example.
+### Configuring Disabled Dates
+
+Define dates that should be unavailable for selection:
+
+```javascript
+const disabledDates = ["2025-02-16", "2025-02-18", "2025-02-19", "2025-02-26"];
+```
+
+### Getting Selected Date Range
+
+```javascript
+function getCombinedDateTime() {
+    const startDate = $("#startDate").val();
+    const startTime = $("#startTime").val();
+    const endDate = $("#endDate").val();
+    const endTime = $("#endTime").val();
+
+    return {
+        start: startDate + ' ' + startTime,
+        end: endDate + ' ' + endTime
+    };
+}
+```
+
+## API Reference
+
+### Key Methods
+
+- `initializeDateTimePickers()`: Initializes the date and time pickers with default values
+- `getCombinedDateTime()`: Returns the selected date and time range
+- `beforeShowDay()`: Controls date availability in the calendar
+- `onSelect()`: Handles date selection validation and updates
 
 ## Contributing
 
-Contributions are welcome! Please feel free to open issues or submit pull requests.
-
-## Need Help?
-
-If you have any questions or need assistance using this date and time range picker, please don't hesitate to open an issue on the repository.  We'll be happy to help!
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
-MIT License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+For support, please open an issue in the GitHub repository or contact the maintainers.
