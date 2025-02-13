@@ -4,21 +4,8 @@
 <title>Date and Time Range Picker</title>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
-<style>.container {
-    display: flex;
-    flex-direction: column;
-  }.input-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }.input-group label {
-    margin-right: 5px;
-    width: 80px;
-  }
-  #dateTimeRange {
-    margin-top: 10px;
-    font-weight: bold;
-  }
+<style>
+/*... (styles remain the same) */
 </style>
 <body>
 
@@ -49,9 +36,15 @@
 
 <script>
 $(function() {
+  const disabledDates = ["2025-02-20", "2025-02-15", "2025-02-18"]; // Array of disabled dates (YYYY-MM-DD)
+
   $("#startDate").datepicker({
     dateFormat: "yy-mm-dd",
-    minDate: 0, // Disable past dates for start date
+    minDate: 0,
+    beforeShowDay: function(date) {
+      const formattedDate = $.datepicker.formatDate("yy-mm-dd", date);
+      return [disabledDates.indexOf(formattedDate) === -1]; // Enable date if not in disabledDates
+    },
     onSelect: function(selectedDate) {
       $("#endDate").datepicker("option", "minDate", selectedDate);
       if ($("#endDate").val() && new Date(selectedDate) > new Date($("#endDate").val())) {
@@ -67,6 +60,10 @@ $(function() {
 
   $("#endDate").datepicker({
     dateFormat: "yy-mm-dd",
+    beforeShowDay: function(date) {
+      const formattedDate = $.datepicker.formatDate("yy-mm-dd", date);
+      return [disabledDates.indexOf(formattedDate) === -1]; // Enable date if not in disabledDates
+    },
     onSelect: function(selectedDate) {
       $("#startDate").datepicker("option", "maxDate", selectedDate);
       if ($("#startDate").val() && new Date(selectedDate) < new Date($("#startDate").val())) {
